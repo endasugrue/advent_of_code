@@ -1,0 +1,5 @@
+venv
+*.log
+*.log*
+__pycache__
+script_secrets.py

@@ -6,6 +6,7 @@ import re
 from collections import defaultdict
 from pprint import pprint, pformat
 from functools import reduce
+import sys
 
 setup_logging('advent_of_code')
 logger = logging.getLogger('advent_of_code')
@@ -222,44 +223,34 @@ def day_4_2(input:str) -> int:
 
 if __name__ == "__main__":
     
-    # Day 1
-    logger = logging.getLogger('advent_of_code.day_1')
-    day_1_input = get_input_for_day(1)
-    
-    day_1_1_answer = day_1_1(day_1_input)
-    logger.info(f"{day_1_1_answer=}")
+    mode = sys.argv[1]
 
-    day_1_2_answer = day_1_2(day_1_input)
-    logger.info(f"{day_1_2_answer=}")
+    if mode not in ['manual', 'auto']:
+        raise ValueError("Mode not supported")
 
-    # Day 2
-    logger = logging.getLogger('advent_of_code.day_2')
-    day_2_input = get_input_for_day(2)
+    if mode == 'manual':
+        ## Manually define the functions you want to call in here e.g.:
+        logger = logging.getLogger('advent_of_code.manual')
+        # day_1_input = get_input_for_day(1)
+        
+        # day_1_1_answer = day_1_1(day_1_input)
+        # logger.info(f"{day_1_1_answer=}")
 
-    day_2_1_answer = day_2_1(day_2_input)
-    logger.info(f"{day_2_1_answer=}")
+        # day_1_2_answer = day_1_2(day_1_input)
+        # logger.info(f"{day_1_2_answer=}")
+    elif mode == 'auto':
+        for i in range(1,26):
+            try:
+                logger = logging.getLogger(f'advent_of_code.day_{i}')
+                day_input = get_input_for_day(i)
+                part_1_func_name = f"day_{i}_1"
+                part_2_func_name = f"day_{i}_2"
+                part_1_answer_name = f"day_{i}_1_answer"
+                part_2_answer_name = f"day_{i}_2_answer"
 
-    day_2_2_answer = day_2_2(day_2_input)
-    logger.info(f"{day_2_2_answer=}")
+                logger.info(f"{part_1_answer_name}={locals()[part_1_func_name](day_input)}")
+                logger.info(f"{part_2_answer_name}={locals()[part_2_func_name](day_input)}")
+            except Exception as e:
+                logger.warning(f"We have not gottent this far yet, {e}")
+                sys.exit(0)
 
-    # Day 3
-    logger = logging.getLogger('advent_of_code.day_3')
-    day_3_input = get_input_for_day(3)
-
-
-    day_3_1_answer = day_3_1(day_3_input)
-    logger.info(f"{day_3_1_answer=}")
-
-    day_3_2_answer = day_3_2(day_3_input)
-    logger.info(f"{day_3_2_answer=}")
-
-    # Day 4
-    logger = logging.getLogger('advent_of_code.day_4')
-    day_4_input = get_input_for_day(4)
-
-
-    day_4_1_answer = day_4_1(day_4_input)
-    logger.info(f"{day_4_1_answer=}")
-
-    day_4_2_answer = day_4_2(day_4_input)
-    logger.info(f"{day_4_2_answer=}")

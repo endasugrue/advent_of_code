@@ -222,51 +222,45 @@ def day_4_2(input:str) -> int:
 
 if __name__ == "__main__":
     
-    # # Day 1
-    # logger = logging.getLogger('advent_of_code.day_1')
-    # day_1_input = get_input_for_day(1)
+    # Day 1
+    logger = logging.getLogger('advent_of_code.day_1')
+    day_1_input = get_input_for_day(1)
     
-    # day_1_1_answer = day_1_1(day_1_input)
-    # logger.info(f"{day_1_1_answer=}")
+    day_1_1_answer = day_1_1(day_1_input)
+    logger.info(f"{day_1_1_answer=}")
 
-    # day_1_2_answer = day_1_2(day_1_input)
-    # logger.info(f"{day_1_2_answer=}")
+    day_1_2_answer = day_1_2(day_1_input)
+    logger.info(f"{day_1_2_answer=}")
 
-    # # Day 2
-    # logger = logging.getLogger('advent_of_code.day_2')
-    # day_2_input = get_input_for_day(2)
+    # Day 2
+    logger = logging.getLogger('advent_of_code.day_2')
+    day_2_input = get_input_for_day(2)
 
-    # day_2_1_answer = day_2_1(day_2_input)
-    # logger.info(f"{day_2_1_answer=}")
+    day_2_1_answer = day_2_1(day_2_input)
+    logger.info(f"{day_2_1_answer=}")
 
-    # day_2_2_answer = day_2_2(day_2_input)
-    # logger.info(f"{day_2_2_answer=}")
+    day_2_2_answer = day_2_2(day_2_input)
+    logger.info(f"{day_2_2_answer=}")
 
-    # # Day 3
-    # logger = logging.getLogger('advent_of_code.day_3')
-    # day_3_input = get_input_for_day(3)
+    # Day 3
+    logger = logging.getLogger('advent_of_code.day_3')
+    day_3_input = get_input_for_day(3)
 
 
-    # day_3_1_answer = day_3_1(day_3_input)
-    # logger.info(f"{day_3_1_answer=}")
+    day_3_1_answer = day_3_1(day_3_input)
+    logger.info(f"{day_3_1_answer=}")
 
-    # day_3_2_answer = day_3_2(day_3_input)
-    # logger.info(f"{day_3_2_answer=}")
+    day_3_2_answer = day_3_2(day_3_input)
+    logger.info(f"{day_3_2_answer=}")
 
     # Day 4
     logger = logging.getLogger('advent_of_code.day_4')
     day_4_input = get_input_for_day(4)
 
-#     day_4_input = """Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
-# Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
-# Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
-# Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
-# Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
-# Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11"""
 
 
-    # day_4_1_answer = day_4_1(day_4_input)
-    # logger.info(f"{day_4_1_answer=}")
+    day_4_1_answer = day_4_1(day_4_input)
+    logger.info(f"{day_4_1_answer=}")
 
     day_4_2_answer = day_4_2(day_4_input)
     logger.info(f"{day_4_2_answer=}")

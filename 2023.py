@@ -175,6 +175,50 @@ def day_3_2(input:str) -> int:
     return sum(numbers_to_be_added)
 
 
+def day_4_1(input:str) -> int:
+    input_as_list = input.strip().split("\n")
+    card_values = []
+    for row in input_as_list:
+        card_value = 0
+        card, data = row.split(":")
+        str_win, str_my_nums = data.split("|")
+        set_winning= set([n.group(0) for n in re.finditer(r"\d+", str_win)])
+        set_my_nums = set([n.group(0) for n in re.finditer(r"\d+", str_my_nums)])
+        nums_i_have = set_winning.intersection(set_my_nums)
+        for i in range(len(nums_i_have)):
+            if i == 0:
+                card_value = 1
+            else:
+                card_value *= 2
+        logger.info(f"{nums_i_have=}")
+        logger.info(f"{card=}, {card_value=}")
+        card_values.append(card_value)
+
+    return sum(card_values)
+
+def day_4_2(input:str) -> int:
+    input_as_list = input.strip().split("\n")
+    cards_len_matches_copies = {}
+    for row in input_as_list:
+        card, data = row.split(":")
+        card = int(re.search(r"\d+",card).group(0))
+        str_win, str_my_nums = data.split("|")
+        set_winning= set([n.group(0) for n in re.finditer(r"\d+", str_win)])
+        set_my_nums = set([n.group(0) for n in re.finditer(r"\d+", str_my_nums)])
+        nums_i_have = set_winning.intersection(set_my_nums)
+        cards_len_matches_copies[card] = {"number_of_matches": len(nums_i_have),"copies": 1}
+
+    for card_number, data in cards_len_matches_copies.items():
+        logger.info(f"{card_number=}, {data=}")
+        for i in range(data.get("copies")):
+            for m in range(1,data.get("number_of_matches")+1):
+                # Do not attempt to have logging to stdout in this loop, it will crash your pc.
+                cards_len_matches_copies[card_number + m]["copies"] += 1
+    
+    return sum([v.get("copies") for k,v in cards_len_matches_copies.items()])
+
+
+
 
 if __name__ == "__main__":
     
@@ -198,23 +242,31 @@ if __name__ == "__main__":
     # day_2_2_answer = day_2_2(day_2_input)
     # logger.info(f"{day_2_2_answer=}")
 
-    # Day 3
-    logger = logging.getLogger('advent_of_code.day_3')
-    day_3_input = get_input_for_day(3)
-#     day_3_input = """467..114..
-# ...*......
-# ..35..633.
-# ......#...
-# 617*......
-# .....+.58.
-# ..592.....
-# ......755.
-# ...$.*....
-# .664.598.."""
+    # # Day 3
+    # logger = logging.getLogger('advent_of_code.day_3')
+    # day_3_input = get_input_for_day(3)
 
 
-    day_3_1_answer = day_3_1(day_3_input)
-    logger.info(f"{day_3_1_answer=}")
+    # day_3_1_answer = day_3_1(day_3_input)
+    # logger.info(f"{day_3_1_answer=}")
 
     # day_3_2_answer = day_3_2(day_3_input)
     # logger.info(f"{day_3_2_answer=}")
+
+    # Day 4
+    logger = logging.getLogger('advent_of_code.day_4')
+    day_4_input = get_input_for_day(4)
+
+#     day_4_input = """Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
+# Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
+# Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1
+# Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83
+# Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
+# Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11"""
+
+
+    # day_4_1_answer = day_4_1(day_4_input)
+    # logger.info(f"{day_4_1_answer=}")
+
+    day_4_2_answer = day_4_2(day_4_input)
+    logger.info(f"{day_4_2_answer=}")

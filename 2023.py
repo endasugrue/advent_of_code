@@ -75,7 +75,7 @@ def day_2_2(input:str) -> int:
             for cube in cubes:
                 amount,colour = cube.split(' ')
                 if int(amount) > min_cubes[colour]:
-                   logger.info(f"{game_id}: new minimun for {colour}, as {int(amount)} > {min_cubes[colour]=}")
+                   logger.debug(f"{game_id}: new minimun for {colour}, as {int(amount)} > {min_cubes[colour]=}")
                    min_cubes[colour] = int(amount)
         min_cubes_powers.append((min_cubes["red"]*min_cubes["blue"]*min_cubes["green"]))
     return sum(min_cubes_powers)
@@ -94,33 +94,33 @@ def day_3_1(input:str) -> int:
             value = num.group(0)
             min_adj_index = num.start(0) - 1 if (num.start(0) - 1) > 0 else 0
             max_adj_index = num.end(0) + 1
-            logger.info(f"{index=}, {value=}, {min_adj_index=}, {max_adj_index=}")
+            logger.debug(f"{index=}, {value=}, {min_adj_index=}, {max_adj_index=}")
             # Scan row above
             if index != 0:
                 row_above = input_as_list[index - 1]
                 area_to_check_for_symbol_above = row_above[min_adj_index:max_adj_index]
-                logger.info(f"{area_to_check_for_symbol_above=}")
+                logger.debug(f"{area_to_check_for_symbol_above=}")
                 for c in area_to_check_for_symbol_above:
                     if c in symbols_in_input_file:
-                        logger.info(f"Symbol {c} found in {area_to_check_for_symbol_above}")
+                        logger.debug(f"Symbol {c} found in {area_to_check_for_symbol_above}")
                         numbers_to_be_added.append(value)
 
             # Current row
             area_to_check_for_symbol_current = row[min_adj_index:max_adj_index]
-            logger.info(f"{area_to_check_for_symbol_current}")
+            logger.debug(f"{area_to_check_for_symbol_current}")
             for c in area_to_check_for_symbol_current:
                 if c in symbols_in_input_file:
-                    logger.info(f"Symbol {c} found in {area_to_check_for_symbol_current}")
+                    logger.debug(f"Symbol {c} found in {area_to_check_for_symbol_current}")
                     numbers_to_be_added.append(value)
 
             # Row below
             if index < len(input_as_list)-1:
                 row_below = input_as_list[index + 1]
                 area_to_check_for_symbol_below = row_below[min_adj_index:max_adj_index]
-                logger.info(f"{area_to_check_for_symbol_below=}")
+                logger.debug(f"{area_to_check_for_symbol_below=}")
                 for c in area_to_check_for_symbol_below:
                     if c in symbols_in_input_file:
-                        logger.info(f"Symbol {c} found in {area_to_check_for_symbol_below}")
+                        logger.debug(f"Symbol {c} found in {area_to_check_for_symbol_below}")
                         numbers_to_be_added.append(value)
             
     return sum(map(int,numbers_to_be_added))
@@ -138,7 +138,7 @@ def day_3_2(input:str) -> int:
             start_index = num.start(0)-1 if num.start(0) -1 > 0 else 0
             fin_index = num.end(0)
             number_data.append({"index": index, "value":value, "start_index": start_index, "fin_index": fin_index})
-            print(row[start_index:fin_index], value, index)
+            logger.debug(f"{row[start_index:fin_index]}, {value}, {index}")
         gears = re.finditer(r"\*", row)
         for gear in gears:
             gear_data.append({"line_index": index, "gear_index": gear.start(0)})
@@ -155,17 +155,17 @@ def day_3_2(input:str) -> int:
 
         for num in numbers_on_line_above:
             if (gear_index >= num.get("start_index")) and (gear_index <= num.get("fin_index")):
-                logger.info(f"Number found adjacent on line above {num}, {gear_index=}")
+                logger.debug(f"Number found adjacent on line above {num}, {gear_index=}")
                 numbers_to_be_multiplied.append(num.get("value"))
         
         for num in numbers_on_current_line:
             if (gear_index >= num.get("start_index")) and (gear_index <= num.get("fin_index")):
-                logger.info(f"Number found adjacent on current line {num}, {gear_index=}")
+                logger.debug(f"Number found adjacent on current line {num}, {gear_index=}")
                 numbers_to_be_multiplied.append(num.get("value"))
 
         for num in numbers_on_line_below:
             if (gear_index >= num.get("start_index")) and (gear_index <= num.get("fin_index")):
-                logger.info(f"Number found adjacent on line below {num}, {gear_index=}")
+                logger.debug(f"Number found adjacent on line below {num}, {gear_index=}")
                 numbers_to_be_multiplied.append(num.get("value"))
         
         if len(numbers_to_be_multiplied) == 2:
@@ -190,8 +190,8 @@ def day_4_1(input:str) -> int:
                 card_value = 1
             else:
                 card_value *= 2
-        logger.info(f"{nums_i_have=}")
-        logger.info(f"{card=}, {card_value=}")
+        logger.debug(f"{nums_i_have=}")
+        logger.debug(f"{card=}, {card_value=}")
         card_values.append(card_value)
 
     return sum(card_values)
@@ -209,7 +209,7 @@ def day_4_2(input:str) -> int:
         cards_len_matches_copies[card] = {"number_of_matches": len(nums_i_have),"copies": 1}
 
     for card_number, data in cards_len_matches_copies.items():
-        logger.info(f"{card_number=}, {data=}")
+        logger.debug(f"{card_number=}, {data=}")
         for i in range(data.get("copies")):
             for m in range(1,data.get("number_of_matches")+1):
                 # Do not attempt to have logging to stdout in this loop, it will crash your pc.
@@ -256,7 +256,6 @@ if __name__ == "__main__":
     # Day 4
     logger = logging.getLogger('advent_of_code.day_4')
     day_4_input = get_input_for_day(4)
-
 
 
     day_4_1_answer = day_4_1(day_4_input)

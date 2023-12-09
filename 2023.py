@@ -3,7 +3,7 @@ from util import setup_logging
 import logging
 from script_secrets import Secrets
 import re
-from collections import defaultdict
+from collections import Counter
 from pprint import pprint, pformat
 from functools import reduce
 import sys
@@ -276,45 +276,223 @@ def day_5_1(input:str) -> int:
         
     return min([a.get("location") for a in combined_almanacs])
 
-def day_5_2(input:str) -> int:
-
-    def get_seed_ranges_list(seeds):
-        for i in range(0,len(seeds),2):
-        
-            yield range(seeds[i],seeds[i]+seeds[i+1])
+def day_6_1(input:str) -> int:
+    times, distances = input.strip().split("\n")
+    times = list(map(int,re.findall(r"(\d+)",times)))
+    distances = list(map(int,re.findall(r"(\d+)",distances)))
+    combined = zip(times, distances)
+    list_no_of_wins = []
+    for race in combined:
+        time = race[0]
+        record_distance = race[1]
+        no_of_wins = 0
+        for i in range(time+1):
+            speed_from_hold = i
+            time_travelling = time - speed_from_hold
+            distance_moved = speed_from_hold * time_travelling
+            if distance_moved > record_distance:
+                no_of_wins += 1
+        list_no_of_wins.append(no_of_wins)
     
+    return np.prod(list_no_of_wins)
 
-    seeds = list(map(int,re.search(r"seeds: (.*?)\n\n", input).group(1).split(" ")))
-    seed_ranges = [r for r in get_seed_ranges_list(seeds)]
-    all_mins = []
-    cmp_rgx_map_names = r"(\w+-to-\w+) map"
+def day_6_2(input:str) -> int:
+    times, distances = input.replace(" ","").strip().split("\n")
+    times = list(map(int,re.findall(r"(\d+)",times)))
+    distances = list(map(int,re.findall(r"(\d+)",distances)))
+    combined = zip(times, distances)
+    list_no_of_wins = []
+    for race in combined:
+        time = race[0]
+        record_distance = race[1]
+        no_of_wins = 0
+        for i in range(time+1):
+            speed_from_hold = i
+            time_travelling = time - speed_from_hold
+            distance_moved = speed_from_hold * time_travelling
+            if distance_moved > record_distance:
+                no_of_wins += 1
+        list_no_of_wins.append(no_of_wins)
     
-    for seed_range in seed_ranges[0:1]:
-        logger.info(f"{seed_range=}")
-        individual_almanacs = {}
-        
-        maps = re.findall(cmp_rgx_map_names, input)
-        
-        for m in maps:
-            pattern = re.compile(fr"{m} map:\n(.*?)(?:\n\n|$)",re.DOTALL)
-            string_values = re.search(pattern, input).group(1).split("\n")
-            individual_almanacs[m] = []
-            for s_val in string_values:
-                dest_start,source_start,_range = map(int,s_val.split(" "))
-                dest_end, source_end = (dest_start+_range -1, source_start+_range-1)
-                individual_almanacs[m].append({
-                    "dest_start":dest_start,
-                    "dest_end":dest_end,
-                    "source_start":source_start,
-                    "source_end":source_end,
-                    "range":_range})
-        
-        print(individual_almanacs['seed-to-soil'])
-        break
-        # lowest_in_ranges = min([a.get("dest_start") for a in individual_almanacs['humidity-to-location']])
+    return np.prod(list_no_of_wins)
 
-    # return min(all_mins)
+def day_7_1(input:str) -> int:
+    def determine_hand_strength(hand):
+        hand_strenght = 0
+        counter = Counter(hand)
+        grouped_cards = counter.most_common()
+        if len(grouped_cards) == 1:
+            hand_strenght = hand_strenghts["five_of_a_kind"]
+        
+        if len(grouped_cards) == 2:
+            if grouped_cards[0][1] == 4:
+                hand_strenght = hand_strenghts["four_of_a_kind"]
+            elif grouped_cards[0][1] == 3:
+                hand_strenght = hand_strenghts["full_house"]
+        
+        if len(grouped_cards) == 3:
+            if grouped_cards[0][1] == 3:
+                hand_strenght = hand_strenghts["three_of_a_kind"]
+            if grouped_cards[0][1] == 2 and grouped_cards[1][1] == 2:
+                hand_strenght = hand_strenghts["two_pair"]
+        
+        if len(grouped_cards) == 4:
+            hand_strenght = hand_strenghts["one_pair"]
+                
+        if len(grouped_cards) == 5:
+            hand_strenght = hand_strenghts["high_card"]
+
+        # logger.info(f"{hand=}, {hand_strenght=}")
+        return hand_strenght
+
+    def convert_hand_to_card_strenght_list(hand):
+        list_cards_strenght = []
+        for c in hand:
+            list_cards_strenght.append(card_strenghts[c])
+        return list_cards_strenght
+
+
+    hands_bids = input.strip().split("\n")
+    hands_bids = list(map(lambda x: x.split(" "), hands_bids))
+    card_strenghts = {"A":14, "K":13, "Q":12, "J":11, "T":10, "9":9, "8":8, "7":7, "6":6, "5":5, "4":4, "3":3, "2":2}
+    hand_strenghts = {
+        "five_of_a_kind":7,
+        "four_of_a_kind":6,
+        "full_house":5,
+        "three_of_a_kind":4,
+        "two_pair":3,
+        "one_pair":2,
+        "high_card":1
+    }
+    for h in hands_bids:
+        hand_strenght = determine_hand_strength(h[0])
+        h.append(hand_strenght)
+        # logger.info(h)
+    hands_bids_sorted = sorted(hands_bids,key=lambda x: (x[2], convert_hand_to_card_strenght_list(x[0])))
+    total_winnings = 0
+    rank = 1
+    for h in hands_bids_sorted:
+        hand_winnings = int(h[1]) * rank
+        total_winnings += hand_winnings
+        rank += 1
+
+    return total_winnings
     ...
+def day_7_2(input:str) -> int:
+
+    def determine_hand_strength(hand):
+        hand_strenght = 0
+        counter = Counter(hand)
+        grouped_cards = counter.most_common()
+        if len(grouped_cards) == 1:
+            hand_strenght = hand_strenghts["five_of_a_kind"]
+        
+        if len(grouped_cards) == 2:
+            if grouped_cards[0][1] == 4:
+                hand_strenght = hand_strenghts["four_of_a_kind"]
+            elif grouped_cards[0][1] == 3:
+                hand_strenght = hand_strenghts["full_house"]
+        
+        if len(grouped_cards) == 3:
+            if grouped_cards[0][1] == 3:
+                hand_strenght = hand_strenghts["three_of_a_kind"]
+            if grouped_cards[0][1] == 2 and grouped_cards[1][1] == 2:
+                hand_strenght = hand_strenghts["two_pair"]
+        
+        if len(grouped_cards) == 4:
+            hand_strenght = hand_strenghts["one_pair"]
+                
+        if len(grouped_cards) == 5:
+            hand_strenght = hand_strenghts["high_card"]
+
+        # logger.info(f"{hand=}, {hand_strenght=}")
+        return hand_strenght
+
+    def convert_hand_to_card_strenght_list(hand):
+        list_cards_strenght = []
+        for c in hand:
+            list_cards_strenght.append(card_strenghts[c])
+        return list_cards_strenght
+    
+    hands_bids = input.strip().split("\n")
+    hands_bids = list(map(lambda x: x.split(" "), hands_bids))
+    card_strenghts = {"A":14, "K":13, "Q":12, "T":11, "9":10, "8":9, "7":8, "6":7, "5":6, "4":5, "3":4, "2":3, "J":2}
+    hand_strenghts = {
+        "five_of_a_kind":7,
+        "four_of_a_kind":6,
+        "full_house":5,
+        "three_of_a_kind":4,
+        "two_pair":3,
+        "one_pair":2,
+        "high_card":1
+    }
+    for h in hands_bids:
+        if "J" in h[0]:
+            logger.info(f"{h[0]} contains wildcards")
+            with_wildcards_strenght = 0
+            for s in [s for s in card_strenghts.keys() if s != "J"]:
+                hand_with_wildcards = h.copy()[0]
+                hand_with_wildcards = hand_with_wildcards.replace("J", s)
+                logger.info(f"\t{hand_with_wildcards}")
+                _strength = determine_hand_strength(hand_with_wildcards)
+                with_wildcards_strenght =  _strength if _strength > with_wildcards_strenght else with_wildcards_strenght
+                logger.info(f"{with_wildcards_strenght=}")
+            h.append(with_wildcards_strenght)
+        else:
+            hand_strenght = determine_hand_strength(h[0])
+            h.append(hand_strenght)
+        # logger.info(h)
+    hands_bids_sorted = sorted(hands_bids,key=lambda x: (x[2], convert_hand_to_card_strenght_list(x[0])))
+    total_winnings = 0
+    rank = 1
+    for h in hands_bids_sorted:
+        hand_winnings = int(h[1]) * rank
+        total_winnings += hand_winnings
+        rank += 1
+
+    return total_winnings
+    ...
+
+
+# def day_5_2(input:str) -> int:
+
+#     def get_seed_ranges_list(seeds):
+#         for i in range(0,len(seeds),2):
+        
+#             yield range(seeds[i],seeds[i]+seeds[i+1])
+    
+
+#     seeds = list(map(int,re.search(r"seeds: (.*?)\n\n", input).group(1).split(" ")))
+#     seed_ranges = [r for r in get_seed_ranges_list(seeds)]
+#     all_mins = []
+#     cmp_rgx_map_names = r"(\w+-to-\w+) map"
+    
+#     for seed_range in seed_ranges[0:1]:
+#         logger.info(f"{seed_range=}")
+#         individual_almanacs = {}
+        
+#         maps = re.findall(cmp_rgx_map_names, input)
+        
+#         for m in maps:
+#             pattern = re.compile(fr"{m} map:\n(.*?)(?:\n\n|$)",re.DOTALL)
+#             string_values = re.search(pattern, input).group(1).split("\n")
+#             individual_almanacs[m] = []
+#             for s_val in string_values:
+#                 dest_start,source_start,_range = map(int,s_val.split(" "))
+#                 dest_end, source_end = (dest_start+_range -1, source_start+_range-1)
+#                 individual_almanacs[m].append({
+#                     "dest_start":dest_start,
+#                     "dest_end":dest_end,
+#                     "source_start":source_start,
+#                     "source_end":source_end,
+#                     "range":_range})
+        
+#         print(individual_almanacs['seed-to-soil'])
+#         break
+#         # lowest_in_ranges = min([a.get("dest_start") for a in individual_almanacs['humidity-to-location']])
+
+#     # return min(all_mins)times6
+#     ...
 
 if __name__ == "__main__":
     
@@ -326,47 +504,18 @@ if __name__ == "__main__":
     if mode == 'manual':
         ## Manually define the functions you want to call in here e.g.:
         logger = logging.getLogger('advent_of_code.manual')
-        day_5_input = get_input_for_day(5)
-        day_5_input = """seeds: 79 14 55 13
-
-seed-to-soil map:
-50 98 2
-52 50 48
-
-soil-to-fertilizer map:
-0 15 37
-37 52 2
-39 0 15
-
-fertilizer-to-water map:
-49 53 8
-0 11 42
-42 0 7
-57 7 4
-
-water-to-light map:
-88 18 7
-18 25 70
-
-light-to-temperature map:
-45 77 23
-81 45 19
-68 64 13
-
-temperature-to-humidity map:
-0 69 1
-1 0 69
-
-humidity-to-location map:
-60 56 37
-56 93 4"""
+        day_7_input = get_input_for_day(7)
+#         day_7_input = """32T3K 765
+# T55J5 684
+# KK677 28
+# KTJJT 220
+# QQQJA 483"""
         
-        # day_5_1_answer = day_5_1(day_5_input)
-        # logger.info(f"{day_5_1_answer=}")
+        day_7_1_answer = day_7_1(day_7_input)
+        logger.info(f"{day_7_1_answer=}")
 
-        day_5_2_answer = day_5_2(day_5_input)
-        logger.info(f"{day_5_2_answer=}")
-        print(f"{day_5_2_answer=}")
+        day_7_2_answer = day_7_2(day_7_input)
+        logger.info(f"{day_7_2_answer=}")
     elif mode == 'auto':
         for i in range(1,26):
             try:

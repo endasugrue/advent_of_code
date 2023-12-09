@@ -7,6 +7,8 @@ from collections import defaultdict
 from pprint import pprint, pformat
 from functools import reduce
 import sys
+import time
+import numpy as np
 
 setup_logging('advent_of_code')
 logger = logging.getLogger('advent_of_code')
@@ -218,8 +220,101 @@ def day_4_2(input:str) -> int:
     
     return sum([v.get("copies") for k,v in cards_len_matches_copies.items()])
 
+def day_5_1(input:str) -> int:
+
+    def calculate_for_individual_almananc(source_val, almananc):
+        relevant_map = [m for m in almananc if m.get('source_start') <= source_val <= m.get('source_end')]
+        if relevant_map == []:
+            return source_val
+        relevant_map = relevant_map[0]
+        source_val_diff_from_start = source_val - relevant_map.get('source_start')
+        corresponding_dest = relevant_map.get('dest_start') + source_val_diff_from_start
+        return corresponding_dest
+    
+    def send_back_values_with_generator(seeds):
+        for seed in seeds:
+            time.sleep(0.01)
+            soil = calculate_for_individual_almananc(seed,individual_almanacs['seed-to-soil'])
+            fertilizer = calculate_for_individual_almananc(soil,individual_almanacs['soil-to-fertilizer'])
+            water = calculate_for_individual_almananc(fertilizer,individual_almanacs['fertilizer-to-water'])
+            light = calculate_for_individual_almananc(water,individual_almanacs['water-to-light'])
+            temperature = calculate_for_individual_almananc(light,individual_almanacs['light-to-temperature'])
+            humidity = calculate_for_individual_almananc(temperature,individual_almanacs['temperature-to-humidity'])
+            location = calculate_for_individual_almananc(humidity,individual_almanacs['humidity-to-location'])
+
+            yield {
+                "seed":seed,
+                "soil":soil,
+                "fertilizer":fertilizer,
+                "water":water,
+                "light":light,
+                "temperature":temperature,
+                "humidity": humidity,
+                "location": location
+                }
 
 
+    seeds = map(int,re.search(r"seeds: (.*?)\n\n", input).group(1).split(" "))
+    individual_almanacs = {}
+    maps = re.findall(r"(\w+-to-\w+) map", input)
+    
+    for m in maps:
+        pattern = re.compile(fr"{m} map:\n(.*?)(?:\n\n|$)",re.DOTALL)
+        string_values = re.search(pattern, input).group(1).split("\n")
+        individual_almanacs[m] = []
+        for s_val in string_values:
+            dest_start,source_start,_range = map(int,s_val.split(" "))
+            dest_end, source_end = (dest_start+_range -1, source_start+_range-1)
+            individual_almanacs[m].append({
+                "dest_start":dest_start,
+                "dest_end":dest_end,
+                "source_start":source_start,
+                "source_end":source_end,
+                "range":_range})
+    
+    combined_almanacs = [a for a in send_back_values_with_generator(seeds)]
+        
+    return min([a.get("location") for a in combined_almanacs])
+
+def day_5_2(input:str) -> int:
+
+    def get_seed_ranges_list(seeds):
+        for i in range(0,len(seeds),2):
+        
+            yield range(seeds[i],seeds[i]+seeds[i+1])
+    
+
+    seeds = list(map(int,re.search(r"seeds: (.*?)\n\n", input).group(1).split(" ")))
+    seed_ranges = [r for r in get_seed_ranges_list(seeds)]
+    all_mins = []
+    cmp_rgx_map_names = r"(\w+-to-\w+) map"
+    
+    for seed_range in seed_ranges[0:1]:
+        logger.info(f"{seed_range=}")
+        individual_almanacs = {}
+        
+        maps = re.findall(cmp_rgx_map_names, input)
+        
+        for m in maps:
+            pattern = re.compile(fr"{m} map:\n(.*?)(?:\n\n|$)",re.DOTALL)
+            string_values = re.search(pattern, input).group(1).split("\n")
+            individual_almanacs[m] = []
+            for s_val in string_values:
+                dest_start,source_start,_range = map(int,s_val.split(" "))
+                dest_end, source_end = (dest_start+_range -1, source_start+_range-1)
+                individual_almanacs[m].append({
+                    "dest_start":dest_start,
+                    "dest_end":dest_end,
+                    "source_start":source_start,
+                    "source_end":source_end,
+                    "range":_range})
+        
+        print(individual_almanacs['seed-to-soil'])
+        break
+        # lowest_in_ranges = min([a.get("dest_start") for a in individual_almanacs['humidity-to-location']])
+
+    # return min(all_mins)
+    ...
 
 if __name__ == "__main__":
     
@@ -231,13 +326,47 @@ if __name__ == "__main__":
     if mode == 'manual':
         ## Manually define the functions you want to call in here e.g.:
         logger = logging.getLogger('advent_of_code.manual')
-        # day_1_input = get_input_for_day(1)
-        
-        # day_1_1_answer = day_1_1(day_1_input)
-        # logger.info(f"{day_1_1_answer=}")
+        day_5_input = get_input_for_day(5)
+        day_5_input = """seeds: 79 14 55 13
 
-        # day_1_2_answer = day_1_2(day_1_input)
-        # logger.info(f"{day_1_2_answer=}")
+seed-to-soil map:
+50 98 2
+52 50 48
+
+soil-to-fertilizer map:
+0 15 37
+37 52 2
+39 0 15
+
+fertilizer-to-water map:
+49 53 8
+0 11 42
+42 0 7
+57 7 4
+
+water-to-light map:
+88 18 7
+18 25 70
+
+light-to-temperature map:
+45 77 23
+81 45 19
+68 64 13
+
+temperature-to-humidity map:
+0 69 1
+1 0 69
+
+humidity-to-location map:
+60 56 37
+56 93 4"""
+        
+        # day_5_1_answer = day_5_1(day_5_input)
+        # logger.info(f"{day_5_1_answer=}")
+
+        day_5_2_answer = day_5_2(day_5_input)
+        logger.info(f"{day_5_2_answer=}")
+        print(f"{day_5_2_answer=}")
     elif mode == 'auto':
         for i in range(1,26):
             try:

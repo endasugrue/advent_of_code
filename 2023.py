@@ -9,6 +9,7 @@ from functools import reduce
 import sys
 import time
 import numpy as np
+from math import lcm
 
 setup_logging('advent_of_code')
 logger = logging.getLogger('advent_of_code')
@@ -276,6 +277,46 @@ def day_5_1(input:str) -> int:
         
     return min([a.get("location") for a in combined_almanacs])
 
+# def day_5_2(input:str) -> int:
+
+#     def get_seed_ranges_list(seeds):
+#         for i in range(0,len(seeds),2):
+        
+#             yield range(seeds[i],seeds[i]+seeds[i+1])
+    
+
+#     seeds = list(map(int,re.search(r"seeds: (.*?)\n\n", input).group(1).split(" ")))
+#     seed_ranges = [r for r in get_seed_ranges_list(seeds)]
+#     all_mins = []
+#     cmp_rgx_map_names = r"(\w+-to-\w+) map"
+    
+#     for seed_range in seed_ranges[0:1]:
+#         logger.info(f"{seed_range=}")
+#         individual_almanacs = {}
+        
+#         maps = re.findall(cmp_rgx_map_names, input)
+        
+#         for m in maps:
+#             pattern = re.compile(fr"{m} map:\n(.*?)(?:\n\n|$)",re.DOTALL)
+#             string_values = re.search(pattern, input).group(1).split("\n")
+#             individual_almanacs[m] = []
+#             for s_val in string_values:
+#                 dest_start,source_start,_range = map(int,s_val.split(" "))
+#                 dest_end, source_end = (dest_start+_range -1, source_start+_range-1)
+#                 individual_almanacs[m].append({
+#                     "dest_start":dest_start,
+#                     "dest_end":dest_end,
+#                     "source_start":source_start,
+#                     "source_end":source_end,
+#                     "range":_range})
+        
+#         print(individual_almanacs['seed-to-soil'])
+#         break
+#         # lowest_in_ranges = min([a.get("dest_start") for a in individual_almanacs['humidity-to-location']])
+
+#     # return min(all_mins)times6
+#     ...
+
 def day_6_1(input:str) -> int:
     times, distances = input.strip().split("\n")
     times = list(map(int,re.findall(r"(\d+)",times)))
@@ -377,7 +418,7 @@ def day_7_1(input:str) -> int:
         rank += 1
 
     return total_winnings
-    ...
+    
 def day_7_2(input:str) -> int:
 
     def determine_hand_strength(hand):
@@ -451,48 +492,92 @@ def day_7_2(input:str) -> int:
         rank += 1
 
     return total_winnings
+
+def day_8_1(input:str) -> int:
+
+    sequence,mappings = input.strip().split("\n\n")
+    mappings = re.findall(r"\w{3}",mappings)
+    mappings_as_dict = {}
+    for i in range(0,len(mappings),3):
+        mappings_as_dict[mappings[i]] = {"L":mappings[i+1],"R":mappings[i+2]}
+    current_node = "AAA"
+    step_count = 0
+    while current_node != "ZZZ":
+        for instruction in sequence:
+            current_node = mappings_as_dict[current_node][instruction]
+            step_count += 1
+            if current_node == "ZZZ":
+                break
+    return step_count
     ...
 
-
-# def day_5_2(input:str) -> int:
-
-#     def get_seed_ranges_list(seeds):
-#         for i in range(0,len(seeds),2):
-        
-#             yield range(seeds[i],seeds[i]+seeds[i+1])
+def day_8_2(input:str) -> int:
+    # I will admit i had to turn to looking for hints on the subreddit for this one, my original plan would have taken a super computer to finish adding up all the steps
+    sequence,mappings = input.strip().split("\n\n")
+    mappings = re.findall(r"[\w\d]{3}",mappings)
+    mappings_as_dict = {}
+    for i in range(0,len(mappings),3):
+        mappings_as_dict[mappings[i]] = {"L":mappings[i+1],"R":mappings[i+2]}
+    current_nodes = [node for node in mappings_as_dict.keys() if node[2] == "A"]
+    steps_list = []
     
-
-#     seeds = list(map(int,re.search(r"seeds: (.*?)\n\n", input).group(1).split(" ")))
-#     seed_ranges = [r for r in get_seed_ranges_list(seeds)]
-#     all_mins = []
-#     cmp_rgx_map_names = r"(\w+-to-\w+) map"
+    for node in current_nodes:
+        step_count = 0
+        while node[2] != "Z":
+            for instruction in sequence:
+                node = mappings_as_dict[node][instruction]
+                step_count += 1
+                if node[2] == "Z":
+                    break
+        steps_list.append(step_count)
     
-#     for seed_range in seed_ranges[0:1]:
-#         logger.info(f"{seed_range=}")
-#         individual_almanacs = {}
-        
-#         maps = re.findall(cmp_rgx_map_names, input)
-        
-#         for m in maps:
-#             pattern = re.compile(fr"{m} map:\n(.*?)(?:\n\n|$)",re.DOTALL)
-#             string_values = re.search(pattern, input).group(1).split("\n")
-#             individual_almanacs[m] = []
-#             for s_val in string_values:
-#                 dest_start,source_start,_range = map(int,s_val.split(" "))
-#                 dest_end, source_end = (dest_start+_range -1, source_start+_range-1)
-#                 individual_almanacs[m].append({
-#                     "dest_start":dest_start,
-#                     "dest_end":dest_end,
-#                     "source_start":source_start,
-#                     "source_end":source_end,
-#                     "range":_range})
-        
-#         print(individual_almanacs['seed-to-soil'])
-#         break
-#         # lowest_in_ranges = min([a.get("dest_start") for a in individual_almanacs['humidity-to-location']])
+    return lcm(*steps_list)
 
-#     # return min(all_mins)times6
-#     ...
+def day_9_1(input:str) -> int:
+    histories = input.strip().split("\n")
+    histories = list(map(lambda x: list(map(int,x.split(" "))), histories))
+    all_sequences = []
+    all_next_values = []
+    for hist in histories:
+        sequences = []
+        sequences.append(hist)
+        while all(list(map(lambda x: x==0, hist))) == False:
+            hist = list(np.diff(hist))
+            sequences.append(hist) 
+        all_sequences.append(sequences)
+    
+    for sequence in all_sequences:
+        next_value = 0
+        for h in sequence[::-1]:
+            next_value += h[-1]
+        all_next_values.append(next_value)
+    
+    return np.sum(all_next_values)
+        
+def day_9_2(input:str) -> int:
+    histories = input.strip().split("\n")
+    histories = list(map(lambda x: list(map(int,x.split(" "))), histories))
+    all_sequences = []
+    all_next_values = []
+    for hist in histories:
+        sequences = []
+        sequences.append(hist)
+        while all(list(map(lambda x: x==0, hist))) == False:
+            hist = list(np.diff(hist))
+            sequences.append(hist) 
+        all_sequences.append(sequences)
+    for sequence in all_sequences:
+        next_value = 0
+        for h in sequence[::-1]:
+            if h[0] > next_value:
+                next_value = abs(next_value-h[0])
+            else:
+                next_value = h[0] - next_value
+            
+        all_next_values.append(next_value)
+    
+    return np.sum(all_next_values)
+
 
 if __name__ == "__main__":
     
@@ -504,18 +589,16 @@ if __name__ == "__main__":
     if mode == 'manual':
         ## Manually define the functions you want to call in here e.g.:
         logger = logging.getLogger('advent_of_code.manual')
-        day_7_input = get_input_for_day(7)
-#         day_7_input = """32T3K 765
-# T55J5 684
-# KK677 28
-# KTJJT 220
-# QQQJA 483"""
+        day_9_input = get_input_for_day(9)
+#         day_9_input = """0 3 6 9 12 15
+# 1 3 6 10 15 21
+# 10 13 16 21 30 45"""
         
-        day_7_1_answer = day_7_1(day_7_input)
-        logger.info(f"{day_7_1_answer=}")
+        day_9_1_answer = day_9_1(day_9_input)
+        logger.info(f"{day_9_1_answer=}")
 
-        day_7_2_answer = day_7_2(day_7_input)
-        logger.info(f"{day_7_2_answer=}")
+        day_9_2_answer = day_9_2(day_9_input)
+        logger.info(f"{day_9_2_answer=}")
     elif mode == 'auto':
         for i in range(1,26):
             try:
